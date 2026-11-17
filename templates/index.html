@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entre Nós e o Silêncio</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #f4f1ea;
+            color: #3a3a3a;
+            max-width: 720px;
+            margin: 30px auto;
+            padding: 0 20px;
+            line-height: 1.6;
+        }
+        nav {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        nav a {
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: bold;
+            margin: 0 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid transparent;
+        }
+        nav a.ativo { border-bottom: 2px solid #5d6d7e; }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #dcd6c8;
+            padding-bottom: 20px;
+        }
+        h1 { color: #2c3e50; font-weight: normal; margin-bottom: 5px; }
+        .subtitle { color: #7f8c8d; font-style: italic; margin-top: 0; }
+        .filtros {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        .filtros a {
+            text-decoration: none;
+            background: #e8e4d9;
+            color: #3a3a3a;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+        }
+        .filtros a.selecionado {
+            background: #5d6d7e;
+            color: white;
+        }
+        .form-box, .post {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+        .post { border-left: 4px solid #5d6d7e; }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 6px 0 12px 0;
+            border: 1px solid #dcd6c8;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        button {
+            background-color: #5d6d7e;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        button:hover { background-color: #34495e; }
+        .btn-abraco {
+            background-color: #e8eef2;
+            color: #2c3e50;
+            border: 1px solid #cbd6de;
+            padding: 6px 14px;
+            font-size: 14px;
+        }
+        .post-meta { font-size: 0.85em; color: #7f8c8d; margin-bottom: 10px; }
+        .comentarios-box {
+            margin-top: 20px;
+            background-color: #faf9f6;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        .comentario-item {
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #e0dcd3;
+        }
+        .form-comentario input { padding: 7px; font-size: 0.9em; margin-bottom: 6px; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="/" class="ativo">Mural de Desabafos</a>
+        <a href="/blog">Blog & Reflexões</a>
+    </nav>
+
+    <header>
+        <h1>Entre Nós e o Silêncio</h1>
+        <p class="subtitle">Um abrigo para a solitude, a saudade e o que ficou por dizer.</p>
+    </header>
+
+    <div class="form-box">
+        <h3>Deixe sua história ou carta no mural</h3>
+        <form method="POST">
+            <input type="text" name="autor" placeholder="Seu nome ou pseudônimo (deixe vazio para Anônimo)">
+            <select name="categoria">
+                <option value="Solitude">Solitude (O prazer ou desafio de estar só)</option>
+                <option value="Luto e Saudade">Luto e Saudade (Quem partiu)</option>
+                <option value="Amor não superado">Amor não superado (Términos e memórias)</option>
+            </select>
+            <textarea name="texto" rows="4" placeholder="Escreva aqui o que pesa ou acalma o seu coração..." required></textarea>
+            <button type="submit">Compartilhar no abrigo</button>
+        </form>
+    </div>
+
+    <div class="filtros">
+        <a href="/" class="{% if not filtro_atual %}selecionado{% endif %}">Todos os relatos</a>
+        <a href="/?categoria=Solitude" class="{% if filtro_atual == 'Solitude' %}selecionado{% endif %}">Solitude</a>
+        <a href="/?categoria=Luto e Saudade" class="{% if filtro_atual == 'Luto e Saudade' %}selecionado{% endif %}">Luto e Saudade</a>
+        <a href="/?categoria=Amor não superado" class="{% if filtro_atual == 'Amor não superado' %}selecionado{% endif %}">Amor não superado</a>
+    </div>
+
+    <section>
+        {% for post in posts %}
+        <div class="post">
+            <div class="post-meta">
+                <strong>{{ post.autor }}</strong> • <em>{{ post.categoria }}</em>
+            </div>
+            <p>{{ post.texto }}</p>
+
+            <form action="/abracar/{{ post.id }}" method="POST" style="display:inline;">
+                <button type="submit" class="btn-abraco">🤍 Enviar um abraço ({{ post.abracos }})</button>
+            </form>
+
+            <div class="comentarios-box">
+                <strong style="font-size: 0.9em; color: #5d6d7e;">Palavras de apoio:</strong>
+                {% for comentario in post.comentarios %}
+                <div class="comentario-item">
+                    <strong>{{ comentario.autor }}:</strong> {{ comentario.texto }}
+                </div>
+                {% else %}
+                <p style="font-size: 0.85em; color: #999;">Seja o primeiro a deixar uma palavra amiga.</p>
+                {% endfor %}
+
+                <form action="/comentar/{{ post.id }}" method="POST" class="form-comentario" style="margin-top: 10px;">
+                    <input type="text" name="autor" placeholder="Seu nome (opcional)">
+                    <input type="text" name="texto" placeholder="Escreva uma mensagem de acolhimento..." required>
+                    <button type="submit" style="padding: 6px 12px; font-size: 13px;">Responder</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <p style="text-align: center; color: #7f8c8d;">Ainda não há relatos nesta categoria.</p>
+        {% endfor %}
+    </section>
+
+</body>
+</html>
