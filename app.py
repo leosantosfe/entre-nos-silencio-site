@@ -1,8 +1,11 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///abrigo.db"
+
+db_path = os.path.join("/tmp", "abrigo.db") if os.path.exists("/tmp") else "abrigo.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
@@ -56,7 +59,6 @@ def index():
 def blog():
     if request.method == "POST":
         senha = request.form.get("senha")
-        # Senha simples para só você poder publicar artigos no blog
         if senha == "abrigo123":
             titulo = request.form.get("titulo")
             conteudo = request.form.get("conteudo")
