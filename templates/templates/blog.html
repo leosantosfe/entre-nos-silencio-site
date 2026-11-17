@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Entre Nós e o Silêncio</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #f4f1ea;
+            color: #3a3a3a;
+            max-width: 720px;
+            margin: 30px auto;
+            padding: 0 20px;
+            line-height: 1.7;
+        }
+        nav { text-align: center; margin-bottom: 25px; }
+        nav a {
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: bold;
+            margin: 0 15px;
+            padding-bottom: 5px;
+        }
+        nav a.ativo { border-bottom: 2px solid #5d6d7e; }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #dcd6c8;
+            padding-bottom: 20px;
+        }
+        h1 { color: #2c3e50; font-weight: normal; margin-bottom: 5px; }
+        .artigo {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        .artigo h2 { color: #2c3e50; margin-top: 0; }
+        .caixa-indicacao {
+            background-color: #f0f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .caixa-indicacao a {
+            display: inline-block;
+            margin-top: 8px;
+            background-color: #2c3e50;
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        details {
+            background: #e8e4d9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        summary { cursor: pointer; font-weight: bold; color: #2c3e50; }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 6px 0 12px 0;
+            border: 1px solid #dcd6c8;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        button {
+            background-color: #5d6d7e;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="/">Mural de Desabafos</a>
+        <a href="/blog" class="ativo">Blog & Reflexões</a>
+    </nav>
+
+    <header>
+        <h1>Textos & Reflexões</h1>
+        <p style="color: #7f8c8d; font-style: italic;">Leituras para acalmar a mente e curar o coração.</p>
+    </header>
+
+    <details>
+        <summary>✍️ Área do Autor (Clique para escrever um novo texto)</summary>
+        <form method="POST" style="margin-top: 15px;">
+            <input type="password" name="senha" placeholder="Senha do autor (digite: abrigo123)" required>
+            <input type="text" name="titulo" placeholder="Título do seu artigo" required>
+            <textarea name="conteudo" rows="6" placeholder="Escreva sua reflexão aqui..." required></textarea>
+            <input type="text" name="indicacao_texto" placeholder="Opcional: Nome de um livro ou produto relacionado (ex: Livro: A Coragem de Ser Imperfeito)">
+            <input type="url" name="indicacao_link" placeholder="Opcional: Seu link de afiliado (https://...)">
+            <button type="submit">Publicar no Blog</button>
+        </form>
+    </details>
+
+    <section>
+        {% for artigo in artigos %}
+        <article class="artigo">
+            <h2>{{ artigo.titulo }}</h2>
+            <p style="white-space: pre-line;">{{ artigo.conteudo }}</p>
+
+            {% if artigo.indicacao_texto and artigo.indicacao_link %}
+            <div class="caixa-indicacao">
+                <strong>💡 Recomendação do Abrigo:</strong> {{ artigo.indicacao_texto }}<br>
+                <a href="{{ artigo.indicacao_link }}" target="_blank" rel="noopener">Conhecer indicação →</a>
+            </div>
+            {% endif %}
+        </article>
+        {% else %}
+        <p style="text-align: center; color: #7f8c8d;">Em breve novos textos e reflexões por aqui.</p>
+        {% endfor %}
+    </section>
+
+</body>
+</html>
