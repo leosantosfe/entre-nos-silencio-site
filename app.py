@@ -1,13 +1,21 @@
 import os
+from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-db_path = os.path.join("/tmp", "abrigo.db") if os.path.exists("/tmp") else "abrigo.db"
-app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# Conecta ao banco permanente na nuvem
+database_url = os.environ.get("DATABASE_URL")
+if database_url:
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+else:
+    db_path = os.path.join("/tmp", "abrigo.db") if os.path.exists("/tmp") else "abrigo.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
 
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 class Post(db.Model):
@@ -16,7 +24,8 @@ class Post(db.Model):
     categoria = db.Column(db.String(100), nullable=False)
     texto = db.Column(db.Text, nullable=False)
     abracos = db.Column(db.Integer, default=0)
-    comentarios = db.relationship("Comentario", backref="post", lazy=True)
+    criado_em = db.Column(db.DateTime, default=datetime.utcnow)
+    comentarios = db.relationship("Comentario", backref="post", lazy=True, cascade="all, delete-orphan")
 
 class Comentario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -47,11 +56,14 @@ def index():
             db.session.commit()
         return redirect(url_for("index"))
         
+    limite_48h = datetime.utcnow() - timedelta(hours=48)
+    query = Post.query.filter(Post.criado_em >= limite_48h)
+    
     filtro = request.args.get("categoria")
     if filtro:
-        posts = Post.query.filter_by(categoria=filtro).order_by(Post.id.desc()).all()
+        posts = query.filter_by(categoria=filtro).order_by(Post.id.desc()).all()
     else:
-        posts = Post.query.order_by(Post.id.desc()).all()
+        posts = query.order_by(Post.id.desc()).all()
         
     return render_template("index.html", posts=posts, filtro_atual=filtro)
 
